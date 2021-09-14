@@ -17,14 +17,14 @@ conn1.on('ready', () => {
     conn2.connect({
       sock: stream,
       username: 'cdrakeford',
-      password: '1e157b9e83',
+      password: '*****',
 	  tryKeyboard: true
     });
   });
 }).connect({
   host: 'boole.tchpc.tcd.ie',
   username: 'cdrakeford',
-  password: '1e157b9e83',
+  password: '*****',
   tryKeyboard: true
 });
 
