@@ -1,8 +1,11 @@
 const express = require("express");
-const fs = require('fs');
+const fs = require("fs");
 const fileUpload = require("express-fileupload");
+const ssh = require("./ssh");
 
 const app = express();
+
+let sshClient;
 
 // Necessary to have access to the file in the req object
 app.use(
@@ -11,31 +14,25 @@ app.use(
   })
 );
 
-app.get("/",(req,res) => {
-//console.log(conn1);
+app.post("/api", async function (req, res) {
+  if (!req.files) {
+    res.send("File was not found");
+    return;
+  }
 
-});
-
-app.post("/upload", function(req, res) {
-  const ssh = require("./ssh")
-  console.log(req.files);
-
-  if(!req.files)
-    {
-      res.send("File was not found");
-      return;
-    }
-
-fs.writeFile("/home/cdrakeford/apitest/" + req.files.file1234.name ,req.files.file1234.data,function(err){
+  fs.writeFile("/Users/chrisdrakeford/Apitest/" + req.files.file1234.name,req.files.file1234.data,function(err){
     if(err) throw err;
     console.log("receieved");
-
+ 
 });
-  // Send the file to the other server
-  // scp send file
+
+  await sshClient.uploadFile(req.files.file1234.name,"/home/cdrakeford/apitest/");
+
+
   res.status(200).end();
 });
 
-app.listen(443, () => {
+app.listen(443, async () => {
   console.log("App listening on 443");
+  sshClient = await ssh.start();
 });
