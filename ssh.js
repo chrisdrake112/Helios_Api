@@ -1,20 +1,18 @@
-const { Client } = require("node-scp");
+const { Client } = require("ssh2");
 const dotenv = require("dotenv").config();
 
 const client1 = new Client();
+const client2 = new Client();
 
-
-async function startClient1() {
-  await client1.on('ready', () => {
-    console.log('FIRST :: connection ready');
-    // Alternatively, you could use something like netcat or socat with exec()
-    // instead of forwardOut(), depending on what the server allows
-    conn1.forwardOut(process.env.BOOLE, 12345, process.env.GROVE, 22, (err, stream) => {
+  function booleToGrove(){
+    client1.on('ready', () => {
+      console.log('FIRST :: connection ready');
+    client1.forwardOut(process.env.BOOLE, 12345, process.env.GROVE, 22, (err, stream) => {
       if (err) {
         console.log('FIRST :: forwardOut error: ' + err);
         return conn1.end();
       }
-      conn2.connect({
+      client2.connect({
         sock: stream,
         username: process.env.SSH_USER,
         password: process.env.SSH_PASSWORD,
@@ -22,28 +20,37 @@ async function startClient1() {
       });
     });
   }).connect({
-    host: process.env.BOOLE,
-    port: 22,
-    username: process.env.SSH_USER,
-    password: process.env.SSH_PASSWORD,
-    tryKeyboard: true,
-  });
-  
-  const client2.on = await Client('ready', () => {
-    console.log('Client :: ready');
-    conn.shell((err, stream) => {
-      if (err) throw err;
+  host: process.env.BOOLE,
+  username: process.env.SSH_USER,
+  password: process.env.SSH_PASSWORD,
+});
+}
+
+  function startGrove(){
+  client2.on('ready', () => {
+    // This connection is the one to 10.1.1.40
+  console.log('SECOND :: connection ready');
+    client2.shell('uptime', (err, stream) => {
+      if (err) {
+        console.log('SECOND :: exec error: ' + err);
+        return client1.end();
+      }
+
       stream.on('close', () => {
-        console.log('Stream :: close');
-        conn.end();
+        client1.end(); // close parent (and this) connection
       }).on('data', (data) => {
-        console.log('OUTPUT: ' + data);
+        
+        console.log(data.toString());
       });
-      stream.end('ls -l\nexit\n');
     });
   })
+  //return client2;
+
 }
-  return client2;
+
 module.exports = {
-  startClient1,
-};
+  //startBoole,
+  startGrove,
+  //scpToBoole,
+  booleToGrove,
+}
