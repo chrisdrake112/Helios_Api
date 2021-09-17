@@ -1,47 +1,55 @@
-const { Client } = require('ssh2');
+const { Client } = require("ssh2");
+const dotenv = require("dotenv").config();
 
 
-const conn1 = new Client();
-const conn2 = new Client();
+const client1 = new Client();
+const client2 = new Client();
 
-// Checks uptime on 10.1.1.40 via 192.168.1.1
-
-conn1.on('ready', () => {
-  console.log('FIRST :: connection ready');
-  // Alternatively, you could use something like netcat or socat with exec()
-  // instead of forwardOut(), depending on what the server allows
-  conn1.forwardOut('boole.tchpc.tcd.ie', 12345, 'grove2.computing.dcu.ie', 22, (err, stream) => {
-    if (err) {
-      console.log('FIRST :: forwardOut error: ' + err);
-      return conn1.end();
-    }
-    conn2.connect({
-      sock: stream,
-      username: 'cdrakeford',
-      password: '*****',
-	  tryKeyboard: true
+  function booleToGrove(){
+    client1.on('ready', () => {
+      console.log('FIRST :: connection ready');
+    client1.forwardOut(process.env.BOOLE, 12345, process.env.GROVE, 22, (err, stream) => {
+      if (err) {
+        console.log('FIRST :: forwardOut error: ' + err);
+        return conn1.end();
+      }
+      client2.connect({
+        sock: stream,
+        username: process.env.SSH_USER,
+        password: process.env.SSH_PASSWORD,
+        tryKeyboard: true,
+      });
     });
-  });
-}).connect({
-  host: 'boole.tchpc.tcd.ie',
-  username: 'cdrakeford',
-  password: '*****',
-  tryKeyboard: true
+  }).connect({
+  host: process.env.BOOLE,
+  username: process.env.SSH_USER,
+  password: process.env.SSH_PASSWORD,
 });
+}
 
-conn2.on('ready', () => {
-  // This connection is the one to 10.1.1.40
-
+  function startGrove(){
+  client2.on('ready', () => {
+    // This connection is the one to 10.1.1.40
   console.log('SECOND :: connection ready');
-  conn2.exec('uptime', (err, stream) => {
-    if (err) {
-      console.log('SECOND :: exec error: ' + err);
-      return conn1.end();
-    }
-    stream.on('close', () => {
-      conn1.end(); // close parent (and this) connection
-    }).on('data', (data) => {
-      console.log(data.toString());
+    client2.shell('uptime', (err, stream) => {
+      if (err) {
+        console.log('SECOND :: exec error: ' + err);
+        return client1.end();
+      }
+
+      stream.on('close', () => {
+        client1.end(); // close parent (and this) connection
+      }).on('data', (data) => {
+        
+        console.log(data.toString());
+      });
     });
-  });
-});
+  })
+  //return client2;
+}
+module.exports = {
+  //startBoole,
+  startGrove,
+  //scpToBoole,
+  booleToGrove,
+}

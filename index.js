@@ -1,6 +1,8 @@
 const express = require("express");
-const fs = require('fs');
+const fs = require("fs");
 const fileUpload = require("express-fileupload");
+const ssh = require("./ssh");
+const scp = require("./scp");
 
 const app = express();
 
@@ -11,28 +13,25 @@ app.use(
   })
 );
 
-app.get("/",(req,res) => {
-//console.log(conn1);
+app.post("/api", function (req, res) {
+  if (!req.files) {
+    res.send("File was not found");
+    return;
+  }
+
+const fileName = req.files.file1234.name;
+console.log("/Users/chrisdrakeford/Apitest/" + fileName)
+
+fs.writeFile("/Users/chrisdrakeford/Apitest/" + fileName,req.files.file1234.data,function(err){
+  if(err) throw err;
+  console.log("receieved");
+
+scp.scp1(fileName);
+ssh.booleToGrove();
+scp.scp2(fileName);
+ssh.startGrove();
 
 });
-
-app.post("/upload", function(req, res) {
-  const ssh = require("./ssh")
-  console.log(req.files);
-
-  if(!req.files)
-    {
-      res.send("File was not found");
-      return;
-    }
-
-fs.writeFile("/home/cdrakeford/apitest/" + req.files.file1234.name ,req.files.file1234.data,function(err){
-    if(err) throw err;
-    console.log("receieved");
-
-});
-  // Send the file to the other server
-  // scp send file
   res.status(200).end();
 });
 
