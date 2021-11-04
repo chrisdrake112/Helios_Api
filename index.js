@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const fileUpload = require("express-fileupload");
+const sleep = require("sleep");
 const ssh = require("./ssh");
 const scp = require("./scp");
 
@@ -19,6 +20,7 @@ app.post("/api", function (req, res) {
     return;
   }
 
+
 const fileName = req.files.file1234.name;
 console.log("/Users/chrisdrakeford/Apitest/" + fileName)
 
@@ -27,9 +29,10 @@ fs.writeFile("/Users/chrisdrakeford/Apitest/" + fileName,req.files.file1234.data
   console.log("receieved");
 
 scp.scp1(fileName);
-ssh.booleToGrove();
-scp.scp2(fileName);
-ssh.startGrove();
+//ssh.booleToGrove();
+//scp.scp2(fileName);
+ssh.startBoole();
+
 
 });
   res.status(200).end();

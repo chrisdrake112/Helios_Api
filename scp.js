@@ -2,7 +2,7 @@ const { Client } = require('node-scp')
 const dotenv = require("dotenv").config();
 const ssh = require("./ssh");
 
-// with ES Module
+
 function scp1(fileName)
 {
 Client({
@@ -13,10 +13,10 @@ Client({
     tryKeyboard: true,
 
 }).then(client => {
-  client.uploadFile("/Users/chrisdrakeford/Apitest/" + fileName, "/home/cdrakeford/apitest/" + fileName)
+  client.uploadFile("/Users/chrisdrakeford/apitest/" + fileName, "/home/cdrakeford/voice_input/" + fileName)
         .then(response => {
 		  console.log(fileName + " uploaded")
-          client.close() // remember to close connection after you finish
+          client.close() 
         })
         .catch(error => {})
 }).catch(e => console.log(e))
@@ -35,7 +35,7 @@ Client({
   client.uploadFile("/home/cdrakeford/apitest/" + fileName, "/home/cdrakeford/apitest/" + fileName)
         .then(response => {
 		  console.log(fileName + " uploaded")
-          client.close() // remember to close connection after you finish
+          client.close() 
         })
         .catch(error => {})
 }).catch(e => console.log(e))
