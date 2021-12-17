@@ -28,21 +28,21 @@ const client2 = new Client();
 }
 
   function startBoole(){
-  client2.on('ready', () => {
-    
-  console.log('SECOND :: connection ready');
-    client2.exec('touch file1.txt', (err, stream) => {
+  client2.on('ready', () => {   
+  console.log('BOOLE:: connection ready');
+    client2.exec('bash heliosApi.sh ; exit', (err, stream) => {
       if (err) {
-        console.log('SECOND :: exec error: ' + err);
-        return client1.end();
+        console.log('BOOLE :: exec error: ' + err);
+        return client2.end();
       }
-
-      stream.on('close', () => {
-        client1.end();
+      stream.on('close', (code,signal) => {
+        client2.end();
+        console.log("connection closed")
       }).on('data', (data) => {
         
         console.log(data.toString());
       });
+      stream.end('exit');
     });
   }).connect({
     host: process.env.BOOLE,
